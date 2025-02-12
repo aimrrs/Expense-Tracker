@@ -70,3 +70,24 @@ def Table():
             print(f"[ EXPENSE-TRACKER] Month {M} table created.")
         except mysql.connector.Error as err:
             print(err)
+
+class RI:
+    # To get the expense data to user as information.
+    def __init__ (self):
+        pass
+
+    def month(self, monthYear):
+        # RI as month.
+        pass
+
+    def week(self, weekMonthYear):
+        # RI as week.
+        pass
+
+    def day(self, today):
+        # RI as day - date.
+        pass
+
+    def ranrange(self, start, end):
+        # RI with a range.
+        pass

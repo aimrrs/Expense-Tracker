@@ -12,6 +12,11 @@ PASSWD = PASSWORD
 
 # Getting the 'D, M, Y' of current day.
 td = date.today()
+M, Y = td.month, td.year
+if len(str(M)) == 1:
+    TABLENAME = f'0{M}_{Y}'
+else:
+    TABLENAME = f'{M}_{Y}'
 
 # Creating instance for connection.
 myConn = mysql.connect(user=USERNAME, password=PASSWD, host="localhost")
@@ -43,12 +48,7 @@ def createDatabase():
 
 def Table():
     # Creating table by month, if not exists.
-    M, Y = td.month, td.year
-    if len(str(M)) == 1:
-        tableName = f'0{M}_{Y}'
-    else:
-        tableName = f'{M}_{Y}'
-    checkTable = f"SHOW TABLES LIKE '{tableName}'"
+    checkTable = f"SHOW TABLES LIKE '{TABLENAME}'"
     try:
         cursor.execute(checkTable)
     except mysql.connector.Error as err:
@@ -57,11 +57,11 @@ def Table():
         print(f"[ EXPENSE-TRACKER ] Month 0{M} table already exists.")
     else:
         ctbm = f"""
-        CREATE TABLE {tableName} (
+        CREATE TABLE {TABLENAME} (
             category CHAR(120) NOT NULL,
             value INT NOT NULL,
-            time time,
-            edate date NOT NULL,
+            CURTIME() AS etime time,
+            CURDATE() AS edate date NOT NULL,
             description VARCHAR(120) NOT NULL
         )
         """
@@ -75,7 +75,7 @@ def Table():
 class RI:
     # To get the expense data to user as information.
     def __init__ (self):
-        self.RI_data = {} # Contains RI return data.
+        self.RI_data = {'record' : 0} # Contains RI return data, record 0 if not expense.
 
     def month(self, monthYear):
         # RI as month.
@@ -120,15 +120,56 @@ class RI:
         
         return self.RI_data         
 
-    def week(self, weekMonthYear):
+    def week(self, monthYear):
         # RI as week.
-        pass
+        # week from the same month, i.e. from same table.
+        DWN = td.weekday()
+        F = 7 - DWN
+        P = 7 - (F + 1)
+
+        tempname = TABLENAME.replace("_", "-")[::-1]
+        command = f"SELECT * FROM {TABLENAME} WHERE edate BETWEEN {tempname}{F} AND {tempname}{P}"
+        try:
+            cursor.execute(command)
+        except mysql.connector.Error as err:
+            print(err)
+        
+        if cursor.fetchone() is None:
+            self.RI_data["record"] = 0
+            return self.RI_data
+        
+        self.RI_data["record"] = 1
+        self.RI_data["weekExpense"] = cursor.fetchall()
+        return self.RI_data
 
     def day(self, today):
         # RI as day - date.
-        pass
+        command = f"SELECT * FROM {TABLENAME} WHERE date = {today}"
+        try:
+            cursor.execute(command)
+        except mysql.connector.Error as err:
+            print(err)
+        
+        if cursor.fetchone() is None:
+            self.RI_data["record"] = 0
+            return self.RI_data
+        
+        self.RI_data["record"] = 1
+        self.RI_data["todayExpense"] = cursor.fetchall()
+        return self.RI_data
 
     def ranrange(self, start, end):
         # RI with a range.
-        pass
-    
+        # Range must be from the same table i.e. from same month.
+        command = f"SELECT * FROM {TABLENAME} WHERE edate BETWEEN {start} AND {end}"
+        try:
+            cursor.execute(command)
+        except mysql.connector.Error as err:
+            print(err)
+
+        if cursor.fetchone() is None:
+            self.RI_data["record"] = 0
+            return self.RI_data
+        
+        self.RI_data["record"], self.RI_data["weekExpense"] = 1, cursor.fetchall()
+        return self.RI_data

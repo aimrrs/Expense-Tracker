@@ -7,4 +7,6 @@ ex1 = cursor.fetchall()
 print(ex1)
 for i in range(0,len(ex1)):
     for j in range(0,1):
-         print(ex1[i][j])
+        a = ex1[i][j]
+    
+        print(a[0][0])

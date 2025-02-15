@@ -173,3 +173,20 @@ class RI:
         
         self.RI_data["record"], self.RI_data["weekExpense"] = 1, cursor.fetchall()
         return self.RI_data
+
+
+class GI:
+    def __init__(self,name,amount,category,description):
+        self.uName = name
+        self.uAmt  = amount
+        self.uCat  = category
+        self.des   = description
+    def inInfo(self):
+        cam1 = f"INSERT INTO {TABLENAME} VALUES ('{self.uName}',{self.uAmt},'{self.uCat}','{self.des}')"
+        try:
+            cursor.execute(cam1)
+        except mysql.connector.Error as err:
+            print(err)
+        
+
+        

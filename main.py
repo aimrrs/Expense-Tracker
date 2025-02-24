@@ -4,8 +4,6 @@ from config import USERNAME, PASSWORD
 from mysql.connector import errorcode
 from calendar import month_name
 
-print("[ EXPENSE-TRACKER ] Starting...")
-
 # Getting username and password.
 USERNAME = USERNAME
 PASSWD = PASSWORD
@@ -13,63 +11,98 @@ PASSWD = PASSWORD
 # Getting the 'D, M, Y' of current day.
 td = date.today()
 M, Y = td.month, td.year
+
 if len(str(M)) == 1:
-    TABLENAME = f'0{M}_{Y}'
+    TABLENAME = f"m0{M}_{Y}"
 else:
-    TABLENAME = f'{M}_{Y}'
+    TABLENAME = f"m{M}_{Y}"
 
 # Creating instance for connection.
 myConn = mysql.connect(user=USERNAME, password=PASSWD, host="localhost")
 cursor = myConn.cursor()
-print("[ EXPENSE-TRACKER ] Connection successfully created.")
 
-def createDatabase():
-    # To create base database, if not exists.
-    checkDB = "SHOW DATABASES LIKE 'expense'"
-    createDB = "CREATE DATABASE expense"
-    try:
-        cursor.execute(checkDB) # Check DB
-    except mysql.connector.Error as err:
-            print(err)
-    if cursor.fetchone() is None:
+class General:
+    def __init__(self, email):
+        self.email = email.lower()
+
+    def checkDB(self):
+        checkDB = f"SHOW DATABASES LIKE '{self.email}'"
         try:
-            cursor.execute(createDB) # Create DB
+            cursor.execute(checkDB)  # Check DB
+        except mysql.Error as err:
+            print(err)
+        if cursor.fetchone() is not None:
+            try:
+                cursor.execute(f"USE {self.email}")  # Use DB
+            except mysql.Error as err:
+                print(err)
+            return 1
+        return 0
+
+    def createDB(self):
+        createDB = f"CREATE DATABASE {self.email}"
+        try:
+            cursor.execute(createDB)
             myConn.commit()
-            print("[ EXPENSE-TRACKER ] Base database created.")
-        except mysql.connector.Error as err:
-            print(err)
-    else:
-        print("[ EXPENSE-TRACKER ] Base database already exists.")
-        try:
-            cursor.execute("USE expense") # Use DB
-            print("[ EXPENSE-TRACKER ] Base database in use.")
-        except mysql.connector.Error as err:
+            cursor.execute(f"USE {self.email}")
+        except mysql.Error as err:
             print(err)
 
-def Table():
-    # Creating table by month, if not exists.
-    checkTable = f"SHOW TABLES LIKE '{TABLENAME}'"
-    try:
-        cursor.execute(checkTable)
-    except mysql.connector.Error as err:
+    def checkTable():
+        checkTable = f"SHOW TABLES LIKE '{TABLENAME}'"
+        try:
+            cursor.execute(checkTable)
+        except mysql.Error as err:
             print(err)
-    if cursor.fetchone() is not None:
-        print(f"[ EXPENSE-TRACKER ] Month 0{M} table already exists.")
-    else:
+        return cursor.fetchone() is not None
+
+    def createTable():
         ctbm = f"""
-        CREATE TABLE {TABLENAME} (
-            category CHAR(120) NOT NULL,
-            value INT NOT NULL,
-            CURTIME() AS etime time,
-            CURDATE() AS edate date NOT NULL,
-            description VARCHAR(120) NOT NULL
-        )
+            CREATE TABLE {TABLENAME} (
+                ename CHAR(120) NOT NULL,
+                amount INT NOT NULL,
+                category CHAR(120) NOT NULL,
+                etime TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                edate DATE NOT NULL DEFAULT (CURRENT_DATE),
+                description VARCHAR(120) NOT NULL
+            )
         """
         try:
             cursor.execute(ctbm)
             myConn.commit()
-            print(f"[ EXPENSE-TRACKER ] Month {M} table created.")
-        except mysql.connector.Error as err:
+        except mysql.Error as err:
+            print(err)
+
+    def registered(self):
+        command1 = "USE userinformation"
+        command2 = f"SELECT email FROM user WHERE email = '{self.email.lower()}'"
+        try:
+            cursor.execute(command1)
+            if cursor.execute(command2) == None:
+                return False
+            else:
+                return True
+            
+        except mysql.Error as err:
+            print(err)
+
+    def newUser(self, name, region):
+        command1 = "USE userinformation"
+        command2 = f"INSERT INTO user (email, name, region) VALUES ('{self.email}', '{name}', '{region}')"
+        try:
+            cursor.execute(command1)
+            cursor.execute(command2)
+            myConn.commit()
+        except mysql.Error as err:
+            print(err)
+
+class Gi:
+    def insert(name, amount, category, description="Null"):
+        cam1 = f"INSERT INTO {TABLENAME} (ename, amount, category, etime, edate, description) VALUES (%s, %s, %s, CURRENT_TIMESTAMP, CURDATE(), %s)"
+        try:
+            cursor.execute(cam1, (name, amount, category, description))
+            myConn.commit()
+        except mysql.Error as err:
             print(err)
 
 class RI:
@@ -173,20 +206,3 @@ class RI:
         
         self.RI_data["record"], self.RI_data["weekExpense"] = 1, cursor.fetchall()
         return self.RI_data
-
-
-class GI:
-    def __init__(self,name,amount,category,description):
-        self.uName = name
-        self.uAmt  = amount
-        self.uCat  = category
-        self.des   = description
-    def inInfo(self):
-        cam1 = f"INSERT INTO {TABLENAME} VALUES ('{self.uName}',{self.uAmt},'{self.uCat}','{self.des}')"
-        try:
-            cursor.execute(cam1)
-        except mysql.connector.Error as err:
-            print(err)
-        
-
-        

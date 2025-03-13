@@ -1,12 +1,14 @@
 import mysql.connector as mysql
 from datetime import date
-from config import USERNAME, PASSWORD
+import config
 from mysql.connector import errorcode
 from calendar import month_name
+import random
+import smtplib
 
 # Getting username and password.
-USERNAME = USERNAME
-PASSWD = PASSWORD
+USERNAME = config.DB_USERNAME
+PASSWD = config.DB_PASSWORD
 
 # Getting the 'D, M, Y' of current day.
 td = date.today()
@@ -20,6 +22,23 @@ else:
 # Creating instance for connection.
 myConn = mysql.connect(user=USERNAME, password=PASSWD, host="localhost")
 cursor = myConn.cursor()
+
+class Otp:
+    def __init__(self):
+        self.otpNumber = ""
+
+    def generate_otp(self):
+        for _ in range(5):
+            self.otpNumber += str(random.randint(0, 9))
+
+    def validate_otp(self, userOtp):
+        return userOtp == self.otpNumber
+    
+    def send_otp(self, email):
+        S = smtplib.SMTP_SSL("smtp.gmail.com", 465)
+        S.login(config.EMAIL_USERNAME, config.EMAIL_PASSWORD)
+        S.sendmail(config.EMAIL_USERNAME, email, self.otpNumber)
+        S.quit()
 
 class General:
     def __init__(self, email):
@@ -78,11 +97,11 @@ class General:
         command2 = f"SELECT email FROM user WHERE email = '{self.email.lower()}'"
         try:
             cursor.execute(command1)
-            if cursor.execute(command2) == None:
+            cursor.execute(command2)
+            if cursor.fetchall() == []:
                 return False
             else:
                 return True
-            
         except mysql.Error as err:
             print(err)
 
@@ -105,7 +124,7 @@ class Gi:
         except mysql.Error as err:
             print(err)
 
-class RI:
+"""class RI:
     # To get the expense data to user as information.
     def __init__ (self):
         self.RI_data = {'record' : 0} # Contains RI return data, record 0 if not expense.
@@ -206,3 +225,4 @@ class RI:
         
         self.RI_data["record"], self.RI_data["weekExpense"] = 1, cursor.fetchall()
         return self.RI_data
+"""

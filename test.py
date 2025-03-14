@@ -1,21 +1,30 @@
-from main import General, Otp
+from engine import General, Otp
 
-user1 = General("aimrrs404@gmail.com")
-otp = Otp()
+if __name__ == "__main__":
+    userEmail = input("Enter email: ")
 
-if user1.registered():
-    otp.generate_otp()
-    otp.send_otp("aimrrs404@gmail.com")
-    userOTP = input("Enter OTP : ")
-    if otp.validate_otp(userOTP):
-        print("Welcome back")
+    userGen = General(userEmail)
+    if userGen.registered():
+        userOtp = Otp()
+        userOtp.generate_otp()
+        userOtp.send_otp(userEmail)
+        userSentOtp = input("Enter otp: ")
+        if userOtp.validate_otp(userSentOtp):
+            print("Logined in successfully, User already registered.")
+        else:
+            print("Wrong OTP!")
     else:
-        print("Wrong OTP")
-else:  
-    otp.generate_otp()
-    otp.send_otp("aimrrs404@gmail.com")
-    userOTP = input("Enter OTP : ")
-    if otp.validate_otp(userOTP):
-        user1.newUser("Aimrrs", "Pondicherry")
-    else:
-        print("Wrong OTP")
+        userOtp = Otp()
+        userOtp.generate_otp()
+        userOtp.send_otp(userEmail)
+        userSentOtp = input("Enter otp: ")
+        if userOtp.validate_otp(userSentOtp):
+            print("New User, enter details for profile creation.")
+            a = input("Enter name: ")
+            b = input("Enter institute: ")
+            c = input("Enter region: ")
+            userGen.newUser(a, b, c)
+            userGen.createDB()
+            print("Logined in successfully, New user registered.")
+        else:
+            print("Wrong OTP!")

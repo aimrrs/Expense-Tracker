@@ -5,7 +5,7 @@ body {
     padding: 0;
 }
 
-.container {
+.mcontainer {
     max-width: 800px;
     margin: 50px auto;
     padding: 20px;
@@ -77,3 +77,4 @@ form button:hover {
     border: 1px solid #ccc;
     border-radius: 4px;
 }
+

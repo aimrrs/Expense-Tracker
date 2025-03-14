@@ -63,7 +63,7 @@ class General:
     General consists
         1. To check is user is registered       registered()
         2. To create new user profile           newUser(<name, institute, region>)
-        3. To check if user db exists           checkDB()
+        3. To check if user db exists and use   useDB()
         4. To create db for user                createDB()
         5. Check table existance                checkTable()
         6. Create table                         createTable()
@@ -99,7 +99,7 @@ class General:
             writeErrLog(str(err))
             return 132
         
-    def checkDB(self):
+    def useDB(self):
         # To check if user's db exists.
         checkDB = f"SHOW DATABASES LIKE '{self.dbname}'"
         try:
@@ -155,7 +155,7 @@ class General:
             writeErrLog(str(err))
             return 132
 
-def insert(name, amount, category, time=None, date=None,description="Null"):
+def insertRec(name, amount, category, time=None, date=None,description="Null"):
     # Insert records into table         insert(<name, amount, category>, [time, date, description])
 
     if not time and not date:

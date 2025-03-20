@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Email OTP Login</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f4f4f4;
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            width: 300px;
+        }
+        input {
+            width: 90%;
+            padding: 8px;
+            margin: 8px 0;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        button {
+            width: 100%;
+            padding: 10px;
+            background: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:disabled {
+            background: gray;
+            cursor: not-allowed;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h2>Email OTP Login</h2>
+        <input type="email" id="email" placeholder="Enter your email">
+        <button onclick="sendOTP()">Send OTP</button>
+
+        <div id="otpSection" style="display:none;">
+            <input type="text" id="otp" placeholder="Enter OTP">
+            <button onclick="verifyOTP()">Verify OTP</button>
+        </div>
+        
+        <p id="message"></p>
+    </div>
+
+    <script>
+        function sendOTP() {
+            const email = document.getElementById("email").value;
+            if (!email) {
+                alert("Please enter an email.");
+                return;
+            }
+
+            fetch("/send-otp", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ email: email })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    document.getElementById("otpSection").style.display = "block";
+                    document.getElementById("message").textContent = "OTP sent to " + email;
+                } else {
+                    document.getElementById("message").textContent = "Error sending OTP. Try again.";
+                }
+            })
+            .catch(error => console.error("Error:", error));
+        }
+
+        function verifyOTP() {
+            const email = document.getElementById("email").value;
+            const otp = document.getElementById("otp").value;
+
+            fetch("/verify-otp", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ email: email, otp: otp })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    document.getElementById("message").textContent = "Login successful!";
+                    document.getElementById("message").style.color = "green";
+                } else {
+                    document.getElementById("message").textContent = "Invalid OTP. Try again.";
+                    document.getElementById("message").style.color = "red";
+                }
+            })
+            .catch(error => console.error("Error:", error));
+        }
+    </script>
+
+</body>
+</html>

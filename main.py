@@ -1,76 +1,26 @@
 import mysql.connector as mysql
 from datetime import date
-from config import USERNAME, PASSWORD
-from mysql.connector import errorcode
+import config
 from calendar import month_name
 
-print("[ EXPENSE-TRACKER ] Starting...")
-
 # Getting username and password.
-USERNAME = USERNAME
-PASSWD = PASSWORD
+USERNAME = config.DB_USERNAME
+PASSWD = config.DB_PASSWORD
 
 # Getting the 'D, M, Y' of current day.
 td = date.today()
 M, Y = td.month, td.year
+
 if len(str(M)) == 1:
-    TABLENAME = f'0{M}_{Y}'
+    TABLENAME = f"m0{M}_{Y}"
 else:
-    TABLENAME = f'{M}_{Y}'
+    TABLENAME = f"m{M}_{Y}"
 
 # Creating instance for connection.
 myConn = mysql.connect(user=USERNAME, password=PASSWD, host="localhost")
 cursor = myConn.cursor()
-print("[ EXPENSE-TRACKER ] Connection successfully created.")
 
-def createDatabase():
-    # To create base database, if not exists.
-    checkDB = "SHOW DATABASES LIKE 'expense'"
-    createDB = "CREATE DATABASE expense"
-    try:
-        cursor.execute(checkDB) # Check DB
-    except mysql.connector.Error as err:
-            print(err)
-    if cursor.fetchone() is None:
-        try:
-            cursor.execute(createDB) # Create DB
-            myConn.commit()
-            print("[ EXPENSE-TRACKER ] Base database created.")
-        except mysql.connector.Error as err:
-            print(err)
-    else:
-        print("[ EXPENSE-TRACKER ] Base database already exists.")
-        try:
-            cursor.execute("USE expense") # Use DB
-            print("[ EXPENSE-TRACKER ] Base database in use.")
-        except mysql.connector.Error as err:
-            print(err)
 
-def Table():
-    # Creating table by month, if not exists.
-    checkTable = f"SHOW TABLES LIKE '{TABLENAME}'"
-    try:
-        cursor.execute(checkTable)
-    except mysql.connector.Error as err:
-            print(err)
-    if cursor.fetchone() is not None:
-        print(f"[ EXPENSE-TRACKER ] Month 0{M} table already exists.")
-    else:
-        ctbm = f"""
-        CREATE TABLE {TABLENAME} (
-            category CHAR(120) NOT NULL,
-            value INT NOT NULL,
-            CURTIME() AS etime time,
-            CURDATE() AS edate date NOT NULL,
-            description VARCHAR(120) NOT NULL
-        )
-        """
-        try:
-            cursor.execute(ctbm)
-            myConn.commit()
-            print(f"[ EXPENSE-TRACKER ] Month {M} table created.")
-        except mysql.connector.Error as err:
-            print(err)
 
 class RI:
     # To get the expense data to user as information.
@@ -173,3 +123,32 @@ class RI:
         
         self.RI_data["record"], self.RI_data["weekExpense"] = 1, cursor.fetchall()
         return self.RI_data
+
+
+
+
+
+
+
+
+
+
+
+"""
+DATABASE STRUCTURE
+Default Databases - userinformation
+                    Table - users :
+                            dbname char(120) PRIMARY KEY,
+                            name char(120) NOT NULL,
+                            email char(200) NOT NULL,
+                            institute char(200) NOT NULL,
+                            region char(120) NOT NULL)
+"""
+
+
+
+"""
+Generate a login page only frontend which should ask email and gets otp for verification.
+if user is not registered it should ask for some basic details.
+
+"""

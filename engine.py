@@ -27,6 +27,7 @@ class Otp:
         # Generates otp.
         for _ in range(5):
             self.otpNumber += str(random.randint(0, 9))
+        return self.otpNumber
 
     def validate_otp(self, userOtp):
         # Validates user otp to system otp.

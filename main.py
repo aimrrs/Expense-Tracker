@@ -144,3 +144,11 @@ Default Databases - userinformation
                             institute char(200) NOT NULL,
                             region char(120) NOT NULL)
 """
+
+
+
+"""
+Generate a login page only frontend which should ask email and gets otp for verification.
+if user is not registered it should ask for some basic details.
+
+"""

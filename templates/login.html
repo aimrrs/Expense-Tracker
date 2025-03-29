@@ -3,69 +3,176 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Email OTP Login</title>
+    <title>StudentSpend - Login</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
     <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+        }
+        
         body {
-            font-family: Arial, sans-serif;
+            font-family: 'Inter', sans-serif;
             display: flex;
             justify-content: center;
             align-items: center;
             height: 100vh;
-            background-color: #f4f4f4;
+            background-color: #f7f9fc;
         }
+        
         .container {
             background: white;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
             text-align: center;
-            width: 300px;
+            width: 350px;
         }
-        input {
-            width: 90%;
-            padding: 8px;
-            margin: 8px 0;
-            border: 1px solid #ccc;
+        
+        .logo {
+            margin-bottom: 20px;
+        }
+        
+        .logo h1 {
+            font-size: 24px;
+            font-weight: 600;
+        }
+        
+        .beta-tag {
+            background-color: rgba(26, 31, 54, 0.1);
+            font-size: 12px;
+            padding: 2px 6px;
             border-radius: 4px;
+            margin-left: 5px;
+            font-weight: 500;
         }
+        
+        input, select {
+            width: 100%;
+            padding: 12px;
+            margin: 8px 0;
+            border: 1px solid #e6e8eb;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+        
+        input:focus, select:focus {
+            outline: none;
+            border-color: #3b82f6;
+        }
+        
         button {
             width: 100%;
-            padding: 10px;
-            background: #007bff;
+            padding: 12px;
+            background: #1a1f36;
             color: white;
             border: none;
-            border-radius: 4px;
+            border-radius: 6px;
             cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            margin-top: 10px;
         }
+        
         button:disabled {
-            background: gray;
+            background: #6e7891;
             cursor: not-allowed;
+        }
+        
+        .message {
+            margin-top: 15px;
+            font-size: 14px;
+        }
+        
+        .success {
+            color: #22c55e;
+        }
+        
+        .error {
+            color: #ef4444;
+        }
+        
+        .form-section {
+            margin-bottom: 20px;
+        }
+        
+        .form-section h2 {
+            font-size: 18px;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+        
+        .form-group {
+            text-align: left;
+            margin-bottom: 15px;
+        }
+        
+        .form-group label {
+            display: block;
+            font-size: 14px;
+            margin-bottom: 5px;
+            font-weight: 500;
         }
     </style>
 </head>
 <body>
-
     <div class="container">
-        <h2>Email OTP Login</h2>
-        <input type="email" id="email" placeholder="Enter your email">
-        <button onclick="sendOTP()">Send OTP</button>
-
-        <div id="otpSection" style="display:none;">
-            <input type="text" id="otp" placeholder="Enter OTP">
-            <button onclick="verifyOTP()">Verify OTP</button>
+        <div class="logo">
+            <h1>StudentSpend <span class="beta-tag">Beta</span></h1>
         </div>
         
-        <p id="message"></p>
+        <div id="email-section" class="form-section">
+            <h2>Login with Email</h2>
+            <div class="form-group">
+                <label for="email">Email Address</label>
+                <input type="email" id="email" placeholder="Enter your email">
+            </div>
+            <button id="send-otp-btn" onclick="sendOTP()">Send OTP</button>
+        </div>
+        
+        <div id="otp-section" class="form-section" style="display:none;">
+            <h2>Verify OTP</h2>
+            <div class="form-group">
+                <label for="otp">One-Time Password</label>
+                <input type="text" id="otp" placeholder="Enter OTP">
+            </div>
+            <button id="verify-otp-btn" onclick="verifyOTP()">Verify OTP</button>
+        </div>
+        
+        <div id="register-section" class="form-section" style="display:none;">
+            <h2>Complete Registration</h2>
+            <div class="form-group">
+                <label for="name">Full Name</label>
+                <input type="text" id="name" placeholder="Enter your name">
+            </div>
+            <div class="form-group">
+                <label for="institute">Institute</label>
+                <input type="text" id="institute" placeholder="Enter your institute">
+            </div>
+            <div class="form-group">
+                <label for="region">Region</label>
+                <input type="text" id="region" placeholder="Enter your region">
+            </div>
+            <button id="register-btn" onclick="registerUser()">Complete Registration</button>
+        </div>
+        
+        <p id="message" class="message"></p>
     </div>
-
+    
     <script>
+        let userEmail = '';
+        
         function sendOTP() {
             const email = document.getElementById("email").value;
             if (!email) {
-                alert("Please enter an email.");
+                showMessage("Please enter an email address.", "error");
                 return;
             }
-
+            
+            userEmail = email;
+            
             fetch("/send-otp", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
@@ -74,37 +181,98 @@
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    document.getElementById("otpSection").style.display = "block";
-                    document.getElementById("message").textContent = "OTP sent to " + email;
+                    document.getElementById("email-section").style.display = "none";
+                    document.getElementById("otp-section").style.display = "block";
+                    showMessage("OTP sent to " + email, "success");
                 } else {
-                    document.getElementById("message").textContent = "Error sending OTP. Try again.";
+                    showMessage("Error sending OTP: " + data.message, "error");
                 }
             })
-            .catch(error => console.error("Error:", error));
+            .catch(error => {
+                console.error("Error:", error);
+                showMessage("Error sending OTP. Please try again.", "error");
+            });
         }
-
+        
         function verifyOTP() {
-            const email = document.getElementById("email").value;
             const otp = document.getElementById("otp").value;
-
+            if (!otp) {
+                showMessage("Please enter the OTP.", "error");
+                return;
+            }
+            
             fetch("/verify-otp", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ email: email, otp: otp })
+                body: JSON.stringify({ email: userEmail, otp: otp })
             })
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    document.getElementById("message").textContent = "Login successful!";
-                    document.getElementById("message").style.color = "green";
+                    if (data.registered) {
+                        // User is registered, redirect to main page
+                        showMessage("Login successful! Redirecting...", "success");
+                        setTimeout(() => {
+                            window.location.href = "/";
+                        }, 1500);
+                    } else {
+                        // User needs to register
+                        document.getElementById("otp-section").style.display = "none";
+                        document.getElementById("register-section").style.display = "block";
+                        showMessage("Please complete your registration.", "success");
+                    }
                 } else {
-                    document.getElementById("message").textContent = "Invalid OTP. Try again.";
-                    document.getElementById("message").style.color = "red";
+                    showMessage("Invalid OTP. Please try again.", "error");
                 }
             })
-            .catch(error => console.error("Error:", error));
+            .catch(error => {
+                console.error("Error:", error);
+                showMessage("Error verifying OTP. Please try again.", "error");
+            });
+        }
+        
+        function registerUser() {
+            const name = document.getElementById("name").value;
+            const institute = document.getElementById("institute").value;
+            const region = document.getElementById("region").value;
+            
+            if (!name || !institute || !region) {
+                showMessage("Please fill in all fields.", "error");
+                return;
+            }
+            
+            fetch("/register", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    email: userEmail,
+                    name: name,
+                    institute: institute,
+                    region: region
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showMessage("Registration successful! Redirecting...", "success");
+                    setTimeout(() => {
+                        window.location.href = "/main";
+                    }, 1500);
+                } else {
+                    showMessage("Error registering: " + data.message, "error");
+                }
+            })
+            .catch(error => {
+                console.error("Error:", error);
+                showMessage("Error registering. Please try again.", "error");
+            });
+        }
+        
+        function showMessage(text, type) {
+            const messageElement = document.getElementById("message");
+            messageElement.textContent = text;
+            messageElement.className = "message " + type;
         }
     </script>
-
 </body>
 </html>

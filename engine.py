@@ -167,6 +167,14 @@ def insertRec(name, amount, category, time=None, date=None,description="Null"):
         except mysql.Error as err:
             writeErrLog(str(err))
             return 132
+    elif not time and date:
+        cam1 = f"INSERT INTO {TABLENAME} (ename, amount, category, etime, edate, description) VALUES (%s, %s, %s, CURRENT_TIMESTAMP, %s, %s)"
+        try:
+            cursor.execute(cam1, (name, amount, category, date, description))
+            myConn.commit()
+        except mysql.Error as err:
+            writeErrLog(str(err))
+            return 132
     else:
         cam1 = f"INSERT INTO {TABLENAME} (ename, amount, category, etime, edate, description) VALUES (%s, %s, %s, %s, %s, %s)"
         try:

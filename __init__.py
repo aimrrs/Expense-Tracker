@@ -1,13 +1,13 @@
 from flask import Flask, render_template, request, jsonify, session, redirect
 from flask_cors import CORS
 from flask_mail import Mail, Message
-from engine import General, insertRec, monthlyExpense, otp_generate, otp_verify
+from engine import General, insertRec, monthlyExpense, otp_generate, otp_verify, RI
 from datetime import date, datetime
 import calendar
 import config
 
 app = Flask(__name__)
-app.secret_key = 'zahxom-zIssyx-kedzu2'  # Add a secret key for session
+app.secret_key = 'zahxom-zIssyx-kedzu2-zahxom-zIssyx-kedzu2'
 CORS(app)
 
 def send_otp(email, otp):
@@ -248,58 +248,19 @@ def monthly_data():
 def transactions():
     if 'email' not in session:
         return jsonify({"success": False, "message": "Not authenticated"}), 401
-    
-    month = request.args.get('month')
-    if not month:
+    email = session['email']
+    mon = request.args.get('month')
+    if not mon:
         # Use current month if not specified
         td = date.today()
         M, Y = td.month, td.year
         if len(str(M)) == 1:
-            month = f"m0{M}_{Y}"
+            mon = f"m0{M}_{Y}"
         else:
-            month = f"m{M}_{Y}"
-    
+            mon = f"m{M}_{Y}"
     try:
-        # Initialize user database
-        user = General(session['email'])
-        db_exists = user.useDB()
-        
-        if db_exists == 0:
-            # No database, return empty data
-            return jsonify({
-                "success": True,
-                "transactions": []
-            })
-        
-        # Check if table exists for the month
-        if not user.checkTable():
-            # No table for this month, return empty data
-            return jsonify({
-                "success": True,
-                "transactions": []
-            })
-        
-        # Get transactions
-        # This would need to be implemented in your engine.py or main.py
-        # For now, return sample data
-        transactions = [
-            {
-                "id": 1,
-                "ename": "Groceries",
-                "amount": 45.67,
-                "category": "Food & Dining",
-                "edate": "2025-03-15",
-                "description": "Weekly grocery shopping"
-            },
-            {
-                "id": 2,
-                "ename": "Bus Fare",
-                "amount": 12.50,
-                "category": "Transport",
-                "edate": "2025-03-16",
-                "description": "Weekly bus pass"
-            }
-        ]
+        ri = RI()
+        transactions = ri.month(email, mon)
         
         return jsonify({
             "success": True,

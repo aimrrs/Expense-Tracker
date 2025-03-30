@@ -127,9 +127,9 @@ class General:
             writeErrLog(str(err))
             return 132
         
-    def checkTable(self):
+    def checkTable(self, tableName=TABLENAME):
         # To create table for each month.
-        checkTable = f"SHOW TABLES LIKE '{TABLENAME}'"
+        checkTable = f"SHOW TABLES LIKE '{tableName}'"
         try:
             cursor.execute(checkTable)
         except mysql.Error as err:
@@ -261,3 +261,34 @@ def monthlyExpense(monthName):
         "categoryBreakdown": categoryBreakdown,
         "dailyExpenses": dailyExpenses
     }
+
+class RI:
+    def month(self, email, month):
+        user = General(email)
+        db_exists = user.useDB()
+        if db_exists == 0:
+            # No database, return empty data
+            return {
+                "success": True,
+                "transactions": []
+            }
+        
+        # Check if table exists for the month
+        if not user.checkTable(month):
+            # No table for this month, return empty data
+            return {
+                "success": True,
+                "transactions": []
+            }
+        
+        try:
+            print()
+            cursor.execute(f"SELECT * FROM {month}")
+            data = cursor.fetchall()
+            columns = [col[0] for col in cursor.description]
+            rows = [dict(zip(columns, row)) for row in data]
+            return rows
+
+        except mysql.Error as err:
+            writeErrLog(str(err))
+            return

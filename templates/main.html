@@ -3,26 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>StudentSpend - Dashboard</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='dashboard.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <title>StudentSpend - Dashboard</title>
 </head>
 <body>
     <div class="app-container">
-        <!-- Sidebar -->
         <aside class="sidebar">
             <div class="logo">
                 <h1>StudentSpend <span class="beta-tag">Beta</span></h1>
             </div>
-            
             <nav class="main-nav">
                 <ul>
                     <li class="active">
                         <a href="#"><i class="fas fa-th-large"></i> Dashboard</a>
-                    </li>
-                    <li>
-                        <a href="#" id="transactions-link"><i class="fas fa-exchange-alt"></i> Transactions</a>
                     </li>
                     <li>
                         <a href="#" id="analytics-link"><i class="fas fa-chart-pie"></i> Analytics</a>
@@ -35,7 +30,6 @@
                     </li>
                 </ul>
             </nav>
-            
             <div class="categories" id="categories-list">
                 <h3>CATEGORIES</h3>
                 <ul>
@@ -48,8 +42,6 @@
                 </ul>
             </div>
         </aside>
-        
-        <!-- Main Content -->
         <main class="main-content">
             <header class="top-bar">
                 <div class="page-title">
@@ -62,22 +54,19 @@
                         <span id="current-month">March 2025</span>
                         <i class="fas fa-chevron-down"></i>
                     </div>
-                    <div class="notifications">
-                        <i class="far fa-bell"></i>
-                    </div>
                     <div class="user-profile">
                         <span class="user-name" id="username">User</span>
                         <div class="avatar" id="user-avatar">U</div>
                     </div>
                 </div>
             </header>
-            
+
             <!-- Budget Cards -->
             <div class="budget-cards">
                 <div class="budget-card">
                     <div class="card-content">
                         <h3>Monthly Budget</h3>
-                        <div class="amount" id="monthly-budget">$0.00</div>
+                        <div class="amount" id="monthly-budget">₹0.00</div>
                     </div>
                     <div class="card-icon">
                         <i class="fas fa-file-invoice-dollar"></i>
@@ -87,14 +76,7 @@
                 <div class="budget-card">
                     <div class="card-content">
                         <h3>Spent this month</h3>
-                        <div class="amount spent" id="spent-amount">$0.00</div>
-                        <div class="budget-progress">
-                            <span>Budget used</span>
-                            <span id="budget-percent">0%</span>
-                        </div>
-                        <div class="progress-bar">
-                            <div class="progress" id="progress-bar" style="width: 0%"></div>
-                        </div>
+                        <div class="amount spent" id="spent-amount">₹0.00</div>
                     </div>
                     <div class="card-icon spent-icon">
                         <i class="fas fa-receipt"></i>
@@ -104,56 +86,17 @@
                 <div class="budget-card">
                     <div class="card-content">
                         <h3>Remaining</h3>
-                        <div class="amount remaining" id="remaining-amount">$0.00</div>
-                        <div class="daily-budget">
-                            <i class="fas fa-circle-info"></i> Average daily budget: <span id="daily-budget">$0.00</span>
-                        </div>
+                        <div class="amount remaining" id="remaining-amount">₹0.00</div>
                     </div>
                     <div class="card-icon remaining-icon">
                         <i class="fas fa-circle-check"></i>
                     </div>
                 </div>
             </div>
-            
-            <!-- Charts Section -->
-            <div class="charts-section">
-                <div class="chart-container">
-                    <div class="chart-header">
-                        <h3>Expense Trends</h3>
-                        <div class="chart-tabs">
-                            <button class="tab-btn active" data-period="week">Week</button>
-                            <button class="tab-btn" data-period="month">Month</button>
-                            <button class="tab-btn" data-period="year">Year</button>
-                        </div>
-                    </div>
-                    <div class="chart" id="expense-chart"></div>
-                </div>
-                
-                <div class="chart-container">
-                    <div class="chart-header">
-                        <h3>Expense Breakdown</h3>
-                    </div>
-                    <div id="expense-breakdown">
-                        <p>No expense data available</p>
-                    </div>
-                </div>
-            </div>
-            
             <!-- Transactions Table -->
-            <div class="transactions-section" style="display: none;">
+            <div class="transactions-section">
                 <div class="transactions-header">
-                    <h3>Recent Transactions</h3>
-                    <div class="transactions-filter">
-                        <select id="category-filter">
-                            <option value="all">All Categories</option>
-                            <option value="Food & Dining">Food & Dining</option>
-                            <option value="Education">Education</option>
-                            <option value="Entertainment">Entertainment</option>
-                            <option value="Shopping">Shopping</option>
-                            <option value="Transport">Transport</option>
-                            <option value="Other">Other</option>
-                        </select>
-                    </div>
+                    <h3>Transactions</h3>
                 </div>
                 <div class="transactions-table">
                     <table>
@@ -175,7 +118,38 @@
             </div>
         </main>
     </div>
-    
+    <!-- Month Selector Modal -->
+    <div class="modal" id="month-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Select Month</h2>
+                <span class="close-modal">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="month-selector">
+                    <div class="year-selector">
+                        <button id="prev-year"><i class="fas fa-chevron-left"></i></button>
+                        <span id="current-year">2025</span>
+                        <button id="next-year"><i class="fas fa-chevron-right"></i></button>
+                    </div>
+                    <div class="months-grid">
+                        <button class="month-btn" data-month="1">Jan</button>
+                        <button class="month-btn" data-month="2">Feb</button>
+                        <button class="month-btn" data-month="3">Mar</button>
+                        <button class="month-btn" data-month="4">Apr</button>
+                        <button class="month-btn" data-month="5">May</button>
+                        <button class="month-btn" data-month="6">Jun</button>
+                        <button class="month-btn" data-month="7">Jul</button>
+                        <button class="month-btn" data-month="8">Aug</button>
+                        <button class="month-btn" data-month="9">Sep</button>
+                        <button class="month-btn" data-month="10">Oct</button>
+                        <button class="month-btn" data-month="11">Nov</button>
+                        <button class="month-btn" data-month="12">Dec</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
     <!-- Add Button -->
     <button class="add-button" id="add-expense-btn">
         <i class="fas fa-plus"></i>
@@ -222,60 +196,6 @@
             </div>
         </div>
     </div>
-    
-    <!-- Month Selector Modal -->
-    <div class="modal" id="month-modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2>Select Month</h2>
-                <span class="close-modal">&times;</span>
-            </div>
-            <div class="modal-body">
-                <div class="month-selector">
-                    <div class="year-selector">
-                        <button id="prev-year"><i class="fas fa-chevron-left"></i></button>
-                        <span id="current-year">2025</span>
-                        <button id="next-year"><i class="fas fa-chevron-right"></i></button>
-                    </div>
-                    <div class="months-grid">
-                        <button class="month-btn" data-month="1">Jan</button>
-                        <button class="month-btn" data-month="2">Feb</button>
-                        <button class="month-btn" data-month="3">Mar</button>
-                        <button class="month-btn" data-month="4">Apr</button>
-                        <button class="month-btn" data-month="5">May</button>
-                        <button class="month-btn" data-month="6">Jun</button>
-                        <button class="month-btn" data-month="7">Jul</button>
-                        <button class="month-btn" data-month="8">Aug</button>
-                        <button class="month-btn" data-month="9">Sep</button>
-                        <button class="month-btn" data-month="10">Oct</button>
-                        <button class="month-btn" data-month="11">Nov</button>
-                        <button class="month-btn" data-month="12">Dec</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    
-    <!-- Set Budget Modal -->
-    <div class="modal" id="budget-modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2>Set Monthly Budget</h2>
-                <span class="close-modal">&times;</span>
-            </div>
-            <div class="modal-body">
-                <form id="budget-form">
-                    <div class="form-group">
-                        <label for="budget-amount">Budget Amount</label>
-                        <input type="number" id="budget-amount" step="0.01" required>
-                    </div>
-                    <button type="submit" class="btn">Save Budget</button>
-                </form>
-            </div>
-        </div>
-    </div>
-    
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="{{ url_for('static', filename='dashboard.js') }}"></script>
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
 </body>
 </html>

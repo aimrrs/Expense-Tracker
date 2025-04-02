@@ -10,6 +10,8 @@ app = Flask(__name__)
 app.secret_key = 'zahxom-zIssyx-kedzu2-zahxom-zIssyx-kedzu2'
 CORS(app)
 
+mail = Mail(app)
+
 def send_otp(email, otp):
     app.config['MAIL_SERVER'] = 'smtp.gmail.com'
     app.config['MAIL_PORT'] = 587
@@ -17,8 +19,6 @@ def send_otp(email, otp):
     app.config['MAIL_USERNAME'] = config.EMAIL_USERNAME
     app.config['MAIL_PASSWORD'] = config.EMAIL_PASSWORD
     app.config['MAIL_DEFAULT_SENDER'] = config.EMAIL_USERNAME
-
-    mail = Mail(app)
 
     try:
         msg = Message("Your OTP for Secure Login - Expense Tracker", recipients=[email])
@@ -123,8 +123,9 @@ def login():
 
 @app.route("/")
 def index():
-    if 'email' not in session:
-        return redirect("/login")
+    #if 'email' not in session:
+    #    return redirect("/login")
+    session['email'] = "analog81201514@gmail.com"
     return render_template("main.html")
 
 @app.route("/logout")
@@ -202,25 +203,28 @@ def monthly_data():
             return jsonify({
                 "success": True,
                 "totalExpense": 0,
-                "budget": 1200,
+                "budget": 0,
                 "categoryBreakdown": {},
                 "dailyExpenses": {}
             })
 
         # Ensure the table exists
-        if not user.checkTable():
+        if not user.checkTable(month):
             return jsonify({
                 "success": True,
                 "totalExpense": 0,
-                "budget": 1200,
-                "categoryBreakdown": {},
-                "dailyExpenses": {}
+                "budget": 0,
             })
+
         month_data = monthlyExpense(month)
         if not month_data.get("success", True):  # Handle errors properly
             return jsonify({"success": False, "message": month_data.get("error", "Unknown error")}), 500
 
-        total_expense = month_data.get("totalExpense", [])  # Extract data safely
+        total_expense = month_data.get("totalExpense")
+
+        amount = 0
+        for expense in total_expense:
+            amount += expense.get("amount")
         # Extract category breakdown
         category_breakdown = month_data.get("categoryBreakdown", {})
         # Extract daily expenses
@@ -235,10 +239,8 @@ def monthly_data():
 
         return jsonify({
             "success": True,
-            "totalExpense": total_expense,
-            "budget": 1200,  # Default, modify as needed
-            "categoryBreakdown": category_breakdown,
-            "dailyExpenses": daily_expenses
+            "totalExpense": amount,
+            "budget": 1000000,  # Default, modify as needed
         })
 
     except Exception as err:

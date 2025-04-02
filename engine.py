@@ -16,7 +16,7 @@ USERNAME = config.DB_USERNAME
 PASSWD = config.DB_PASSWORD
 
 # Creating instance for connection.
-myConn = mysql.connect(user=USERNAME, password=PASSWD, host="localhost")
+myConn = mysql.connect(user=USERNAME, password=PASSWD, host="0.0.0.0")
 cursor = myConn.cursor()
 
 # Getting the 'D, M, Y' of current day.
@@ -200,55 +200,29 @@ def monthlyExpense(monthName):
         if not (monthName.startswith("m") and monthName[1:3].isdigit() and monthName[3] == "_" and monthName[4:].isdigit()):
             writeErrLog(str(err))
             return {"success": False, "error": f"Invalid format: expected 'mMM_YYYY', got '{monthName}'"}
-
-        # Extract month number safely
-        month_num = int(monthName[1:3])  
-
-        query = f"""
+        
+        query1 = f"""
             SELECT ename, amount, category, etime, edate, description 
             FROM {monthName}
-            WHERE MONTH(edate) = %s
         """
-        cursor.execute(query, (month_num,))
+ 
+        cursor.execute(query1)
         results = cursor.fetchall()
 
     except mysql.Error as err:
         writeErrLog(str(err))
         return {"success": False, "error": str(err)}
 
-    except ValueError as e:
-        writeErrLog(str(err))
-        return {"success": False, "error": f"Month extraction failed: {str(e)}"}
-
-    except Exception as e:
-        writeErrLog(str(err))
-        return {"success": False, "error": f"Unexpected error: {str(e)}"}
-
     # Convert results to DataFrame
     df = pd.DataFrame(results, columns=[column[0] for column in cursor.description])
-
-    # Initialize category breakdown and daily expenses
-    categoryBreakdown = {}
-    dailyExpenses = {str(i): 0 for i in range(1, 32)}
 
     total_expenses = []  # To store final expense list
 
     for _, row in df.iterrows():
-        edate = row["edate"]
-        day = str(edate.day)  # Extract day from date
-
-        # Update daily expenses
-        dailyExpenses[day] += row["amount"]
-
-        # Update category breakdown
-        category = row["category"]
-        categoryBreakdown[category] = categoryBreakdown.get(category, 0) + row["amount"]
-
         # Store formatted expense
         total_expenses.append({
             "ename": row["ename"],
             "amount": row["amount"],
-            "category": category,
             "etime": row["etime"].strftime("%a, %d %b %Y %H:%M:%S GMT"),
             "edate": row["edate"].strftime("%a, %d %b %Y %H:%M:%S GMT"),
             "description": row["description"]
@@ -256,10 +230,8 @@ def monthlyExpense(monthName):
 
     return {
         "success": True,
-        "budget": 1200,  # Set budget manually or fetch dynamically
+        "budget": 0,  # Set budget manually or fetch dynamically
         "totalExpense": total_expenses,
-        "categoryBreakdown": categoryBreakdown,
-        "dailyExpenses": dailyExpenses
     }
 
 class RI:

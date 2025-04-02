@@ -1,53 +1,22 @@
-import smtplib
-import random
 import config
-from email.message import EmailMessage
 import mysql.connector as mysql
 from datetime import date
+import pandas as pd
+from random import randint
+
+class Otp:
+    pass
 
 def writeErrLog(msg):
     with open("log/err.log", "a") as file_object:
         file_object.write(msg+"\n\n")
-
-class Otp:
-    """
-    To generate otp,
-        1. Declare class    Otp()
-        2. Generate opt     generate_otp()
-        3. send otp         send_otp(<to_email>)
-        4. validate otp     validate_otp()
-    """
-    def __init__(self):
-        self.otpNumber = "" # otp
-        self.msg = EmailMessage()
-        self.msg['Subject'] = "Your OTP for Secure Login - Expense Tracker"
-        self.msg['From'] = config.EMAIL_USERNAME
-
-    def generate_otp(self):
-        # Generates otp.
-        for _ in range(5):
-            self.otpNumber += str(random.randint(0, 9))
-        return self.otpNumber
-
-    def validate_otp(self, userOtp):
-        # Validates user otp to system otp.
-        return userOtp == self.otpNumber
-    
-    def send_otp(self, email):
-        # Sends otp through mail.
-        self.msg['To'] = email
-        self.msg.set_content(f"Dear User,\n\nYour One-Time Password (OTP) for logging into your Expense Tracker account is:\n\n{self.otpNumber}\n\nThis OTP is valid for 5 minutes. Please do not share it with anyone.\n\nStay on top of your expenses,\nExpense Tracker Team\n")
-        S = smtplib.SMTP_SSL("smtp.gmail.com", 465)
-        S.login(config.EMAIL_USERNAME, config.EMAIL_PASSWORD)
-        S.send_message(self.msg)
-        S.quit()
 
 # Getting username and password.
 USERNAME = config.DB_USERNAME
 PASSWD = config.DB_PASSWORD
 
 # Creating instance for connection.
-myConn = mysql.connect(user=USERNAME, password=PASSWD, host="localhost")
+myConn = mysql.connect(user=USERNAME, password=PASSWD, host="0.0.0.0")
 cursor = myConn.cursor()
 
 # Getting the 'D, M, Y' of current day.
@@ -58,6 +27,37 @@ if len(str(M)) == 1:
     TABLENAME = f"m0{M}_{Y}"
 else:
     TABLENAME = f"m{M}_{Y}"
+
+def otp_generate(email):
+    otp = str(randint(100000, 999999))
+    try:
+        cursor.execute("USE userinformation")
+        cursor.execute(f"SELECT * FROM otp WHERE email = '{email}'")
+        result = cursor.fetchall()
+        if not result:
+            cursor.execute(f"INSERT INTO otp(email, otp_num) VALUES('{email}', {otp})")
+            myConn.commit()
+            return "OTP:NOT_EXISTS", otp
+        else:
+            return "OTP:EXISTS", otp
+    except mysql.Error as err:
+        writeErrLog(str(err))
+        return {'success' : False, 'err' : str(err)}
+
+def otp_verify(email, otp):
+    try:
+        cursor.execute("USE userinformation")
+        cursor.execute(f"SELECT * FROM otp WHERE email = '{email}'")
+        result = cursor.fetchall()
+        if otp == result[0][1]:
+            cursor.execute(f"DELETE FROM otp WHERE email = '{email}'")
+            myConn.commit()
+            return {'success' : True}, 1
+        else:
+            return {'success' : False}, 0
+    except mysql.Error as err:
+        writeErrLog(str(err))
+        return {'success' : False, 'error' : str(err)}
 
 class General:
     """
@@ -127,9 +127,9 @@ class General:
             writeErrLog(str(err))
             return 132
         
-    def checkTable(self):
+    def checkTable(self, tableName=TABLENAME):
         # To create table for each month.
-        checkTable = f"SHOW TABLES LIKE '{TABLENAME}'"
+        checkTable = f"SHOW TABLES LIKE '{tableName}'"
         try:
             cursor.execute(checkTable)
         except mysql.Error as err:
@@ -167,6 +167,14 @@ def insertRec(name, amount, category, time=None, date=None,description="Null"):
         except mysql.Error as err:
             writeErrLog(str(err))
             return 132
+    elif not time and date:
+        cam1 = f"INSERT INTO {TABLENAME} (ename, amount, category, etime, edate, description) VALUES (%s, %s, %s, CURRENT_TIMESTAMP, %s, %s)"
+        try:
+            cursor.execute(cam1, (name, amount, category, date, description))
+            myConn.commit()
+        except mysql.Error as err:
+            writeErrLog(str(err))
+            return 132
     else:
         cam1 = f"INSERT INTO {TABLENAME} (ename, amount, category, etime, edate, description) VALUES (%s, %s, %s, %s, %s, %s)"
         try:
@@ -175,3 +183,84 @@ def insertRec(name, amount, category, time=None, date=None,description="Null"):
         except mysql.Error as err:
             writeErrLog(str(err))
             return 132
+
+def monthlyExpense(monthName):
+    try:
+        # Ensure monthName is a string
+        if not isinstance(monthName, str):
+            writeErrLog(str(err))
+            return {"success": False, "error": f"Invalid type: expected str, got {type(monthName).__name__}"}
+
+        # Ensure minimum length to avoid indexing errors
+        if len(monthName) < 7:
+            writeErrLog(str(err))
+            return {"success": False, "error": f"Invalid month format: too short ('{monthName}')"}
+        
+        # Validate expected format "mMM_YYYY"
+        if not (monthName.startswith("m") and monthName[1:3].isdigit() and monthName[3] == "_" and monthName[4:].isdigit()):
+            writeErrLog(str(err))
+            return {"success": False, "error": f"Invalid format: expected 'mMM_YYYY', got '{monthName}'"}
+        
+        query1 = f"""
+            SELECT ename, amount, category, etime, edate, description 
+            FROM {monthName}
+        """
+ 
+        cursor.execute(query1)
+        results = cursor.fetchall()
+
+    except mysql.Error as err:
+        writeErrLog(str(err))
+        return {"success": False, "error": str(err)}
+
+    # Convert results to DataFrame
+    df = pd.DataFrame(results, columns=[column[0] for column in cursor.description])
+
+    total_expenses = []  # To store final expense list
+
+    for _, row in df.iterrows():
+        # Store formatted expense
+        total_expenses.append({
+            "ename": row["ename"],
+            "amount": row["amount"],
+            "etime": row["etime"].strftime("%a, %d %b %Y %H:%M:%S GMT"),
+            "edate": row["edate"].strftime("%a, %d %b %Y %H:%M:%S GMT"),
+            "description": row["description"]
+        })
+
+    return {
+        "success": True,
+        "budget": 0,  # Set budget manually or fetch dynamically
+        "totalExpense": total_expenses,
+    }
+
+class RI:
+    def month(self, email, month):
+        user = General(email)
+        db_exists = user.useDB()
+        if db_exists == 0:
+            # No database, return empty data
+            return {
+                "success": True,
+                "transactions": []
+            }
+        
+        # Check if table exists for the month
+        if not user.checkTable(month):
+            # No table for this month, return empty data
+            return {
+                "success": True,
+                "transactions": []
+            }
+        
+        try:
+            print()
+            cursor.execute(f"SELECT * FROM {month}")
+            data = cursor.fetchall()
+            columns = [col[0] for col in cursor.description]
+            rows = [dict(zip(columns, row)) for row in data]
+            return rows
+
+        except mysql.Error as err:
+            writeErrLog(str(err))
+            return

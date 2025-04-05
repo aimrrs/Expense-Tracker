@@ -17,13 +17,7 @@
             <nav class="main-nav">
                 <ul>
                     <li class="active">
-                        <a href="#"><i class="fas fa-th-large"></i> Dashboard</a>
-                    </li>
-                    <li>
-                        <a href="#" id="analytics-link"><i class="fas fa-chart-pie"></i> Analytics</a>
-                    </li>
-                    <li>
-                        <a href="#" id="budget-link"><i class="fas fa-wallet"></i> Budget</a>
+                        <a href="/"><i class="fas fa-th-large"></i> Dashboard</a>
                     </li>
                     <li>
                         <a href="#" id="settings-link"><i class="fas fa-cog"></i> Settings</a>
@@ -61,35 +55,38 @@
                 </div>
             </header>
 
-            <!-- Budget Cards -->
-            <div class="budget-cards">
-                <div class="budget-card">
+            <!-- Stats Cards -->
+            <div class="stats-cards">
+                <div class="stats-card">
                     <div class="card-content">
-                        <h3>Monthly Budget</h3>
-                        <div class="amount" id="monthly-budget">₹0.00</div>
+                        <h3>Total Spent</h3>
+                        <div class="amount total" id="spent-amount">₹0.00</div>
+                        <div class="sub-text">This Month</div>
                     </div>
-                    <div class="card-icon">
-                        <i class="fas fa-file-invoice-dollar"></i>
-                    </div>
-                </div>
-                
-                <div class="budget-card">
-                    <div class="card-content">
-                        <h3>Spent this month</h3>
-                        <div class="amount spent" id="spent-amount">₹0.00</div>
-                    </div>
-                    <div class="card-icon spent-icon">
+                    <div class="card-icon total-icon">
                         <i class="fas fa-receipt"></i>
                     </div>
                 </div>
                 
-                <div class="budget-card">
+                <div class="stats-card">
                     <div class="card-content">
-                        <h3>Remaining</h3>
-                        <div class="amount remaining" id="remaining-amount">₹0.00</div>
+                        <h3>Transactions</h3>
+                        <div class="amount count" id="no-transactions">0</div>
+                        <div class="sub-text">This Month</div>
                     </div>
-                    <div class="card-icon remaining-icon">
-                        <i class="fas fa-circle-check"></i>
+                    <div class="card-icon count-icon">
+                        <i class="fas fa-exchange-alt"></i>
+                    </div>
+                </div>
+                
+                <div class="stats-card">
+                    <div class="card-content">
+                        <h3>Most Spent On</h3>
+                        <div class="amount top" id="top-cat">None</div>
+                        <div class="sub-text" id="top-cat-amt">₹0.00</div>
+                    </div>
+                    <div class="card-icon top-icon">
+                        <i class="fas fa-utensils"></i>
                     </div>
                 </div>
             </div>

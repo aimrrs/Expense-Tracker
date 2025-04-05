@@ -256,7 +256,11 @@
                 if (data.success) {
                     showMessage("Registration successful! Redirecting...", "success");
                     setTimeout(() => {
+<<<<<<< HEAD
                         window.location.href = "/main";
+=======
+                        window.location.href = "/";
+>>>>>>> recover-local
                     }, 1500);
                 } else {
                     showMessage("Error registering: " + data.message, "error");

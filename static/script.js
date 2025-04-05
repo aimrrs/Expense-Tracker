@@ -6,15 +6,26 @@ document.addEventListener('DOMContentLoaded', function() {
     const addExpenseBtn = document.getElementById('add-expense-btn');
     const expenseModal = document.getElementById('expense-modal');
     const closeModalBtns = document.querySelectorAll('.close-modal');
+<<<<<<< HEAD
     const budgetModal = document.getElementById('budget-modal');
     const currentMonthEl = document.getElementById('current-month');
     const monthlyBudgetEl = document.getElementById('monthly-budget');
     const spentAmountEl = document.getElementById('spent-amount');
     const remainingAmountEl = document.getElementById('remaining-amount');
+=======
+    const currentMonthEl = document.getElementById('current-month');
+    const spentAmountEl = document.getElementById('spent-amount');
+    const expenseForm = document.getElementById('expense-form');
+>>>>>>> recover-local
 
     addExpenseBtn.addEventListener('click', openExpenseModal);
     addExpenseBtn.addEventListener('click', openExpenseModal);
 
+<<<<<<< HEAD
+=======
+    expenseForm.addEventListener('submit', handleAddExpense);
+
+>>>>>>> recover-local
     // Month Selector Elements
     const currentYearEl = document.getElementById('current-year');
     const prevYearBtn = document.getElementById('prev-year');
@@ -65,8 +76,17 @@ document.addEventListener('DOMContentLoaded', function() {
                 <td>${formattedDate}</td>
                 <td>${transaction.description || 'N/A'}</td>
                 <td>
+<<<<<<< HEAD
                     <button class="action-btn edit-btn" data-id="${transaction.id}"><i class="fas fa-edit"></i></button>
                     <button class="action-btn delete-btn" data-id="${transaction.id}"><i class="fas fa-trash"></i></button>
+=======
+                    <button class="action-btn edit-btn" data-date="${formattedDate}" data-name="${transaction.ename}">
+                        <i class="fas fa-edit"></i>
+                    </button>
+                    <button class="action-btn delete-btn" data-date="${formattedDate}" data-name="${transaction.ename}">
+                        <i class="fas fa-trash"></i>
+                    </button>
+>>>>>>> recover-local
                 </td>
             `;
             
@@ -76,22 +96,69 @@ document.addEventListener('DOMContentLoaded', function() {
         // Add event listeners for edit and delete buttons
         document.querySelectorAll('.edit-btn').forEach(btn => {
             btn.addEventListener('click', function() {
+<<<<<<< HEAD
                 const id = this.dataset.id;
                 // Implement edit functionality
                 alert('Edit functionality to be implemented');
+=======
+                const date = this.dataset.date;
+                const name = this.dataset.name;
+                // Implement edit functionality
+                alert(`Edit functionality for ${name} on ${date} to be implemented`);
+>>>>>>> recover-local
             });
         });
         
         document.querySelectorAll('.delete-btn').forEach(btn => {
             btn.addEventListener('click', function() {
+<<<<<<< HEAD
                 const id = this.dataset.id;
                 if (confirm('Are you sure you want to delete this expense?')) {
                     deleteExpense(id);
+=======
+                const date = this.dataset.date;
+                const name = this.dataset.name;
+                if (confirm(`Are you sure you want to delete the expense "${name}" on ${date}?`)) {
+                    deleteExpense(date, name);
+>>>>>>> recover-local
                 }
             });
         });
     }
 
+<<<<<<< HEAD
+=======
+    async function deleteExpense(date, name) {
+        try {
+            const response = await fetch('/api/delete-expense', {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json', // Set the correct Content-Type
+                },
+                body: JSON.stringify({ date, name }), // Send data as JSON
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                console.log('Expense deleted successfully:', data);
+
+                if (data.success) {
+                    // Reload transactions and dashboard data
+                    await loadTransactions(); // Reload the transactions table
+                    await loadDashboardData(); // Optionally reload the dashboard data
+                    await loadCardData();
+                } else {
+                    alert('Error deleting expense: ' + data.message);
+                }
+            } else {
+                console.error('Failed to delete expense:', response.status);
+            }
+        } catch (error) {
+            console.error('Error deleting expense:', error);
+        }
+    }
+    
+>>>>>>> recover-local
     // Open Month Selector Modal
     dateSelector.addEventListener('click', () => {
         // Ensure currentYearEl displays the correct year
@@ -143,7 +210,13 @@ document.addEventListener('DOMContentLoaded', function() {
         selectedMonth = month;
         selectedYear = year;
         updateMonthDisplay();
+<<<<<<< HEAD
         loadDashboardData();
+=======
+        loadDashboardData(); // Update the spent amount
+        loadTransactions();  // Update the transactions
+        loadCardData(month, year); // Update the card data
+>>>>>>> recover-local
     }
 
     // Update Month Display
@@ -169,7 +242,10 @@ document.addEventListener('DOMContentLoaded', function() {
         btn.addEventListener('click', () => {
             expenseModal.style.display = 'none';
             monthModal.style.display = 'none';
+<<<<<<< HEAD
             budgetModal.style.display = 'none';
+=======
+>>>>>>> recover-local
         });
     });
 
@@ -181,17 +257,51 @@ document.addEventListener('DOMContentLoaded', function() {
         if (e.target === monthModal) {
             monthModal.style.display = 'none';
         }
+<<<<<<< HEAD
         if (e.target === budgetModal) {
             budgetModal.style.display = 'none';
         }
     });
 
+=======
+    });
+
+    async function loadUserInfo() {
+        try {
+            // Fetch user info from the API
+            const response = await fetch('/api/user-info');
+            if (response.ok) {
+                const data = await response.json();
+                if (data.success && data.user) {
+                    const userName = data.user.name;
+                    const userAvatarLetter = userName.charAt(0).toUpperCase();
+    
+                    // Update the username and avatar
+                    document.getElementById('username').textContent = userName;
+                    document.getElementById('user-avatar').textContent = userAvatarLetter;
+                } else {
+                    console.error('Failed to load user info:', data.message);
+                }
+            } else {
+                console.error('Failed to fetch user info:', response.status);
+            }
+        } catch (error) {
+            console.error('Error loading user info:', error);
+        }
+    }
+    
+    // Call the function when the page loads
+    document.addEventListener('DOMContentLoaded', loadUserInfo);
+
+
+>>>>>>> recover-local
     async function loadDashboardData() {
         try {
             let monthStr = selectedMonth.toString().padStart(2, '0');
             let tableName = `m${monthStr}_${selectedYear}`;
             console.log('Fetching data for table:', tableName);
     
+<<<<<<< HEAD
             const response = await fetch(`/api/monthly-data?month=${tableName}`);
             if (response.ok) {
                 const data = await response.json();
@@ -211,6 +321,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 console.error('Failed to fetch data:', response.status);
                 resetDashboard();
             }
+=======
+>>>>>>> recover-local
         } catch (error) {
             console.error('Error loading dashboard data:', error);
             resetDashboard();
@@ -218,14 +330,133 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function resetDashboard() {
+<<<<<<< HEAD
         monthlyBudgetEl.textContent = '₹0.00';
         spentAmountEl.textContent = '₹0.00';
         remainingAmountEl.textContent = '₹0.00';
+=======
+        spentAmountEl.textContent = '₹0.00';
+>>>>>>> recover-local
     }
 
     function formatCurrency(amount) {
         return '₹' + parseFloat(amount).toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,');
     }
+<<<<<<< HEAD
     loadDashboardData();
+=======
+
+    async function handleAddExpense(e) {
+        e.preventDefault();
+        
+        const name = document.getElementById('expense-name').value;
+        const amount = document.getElementById('expense-amount').value;
+        const category = document.getElementById('expense-category').value;
+        const date = document.getElementById('expense-date').value;
+        const description = document.getElementById('expense-description').value || 'Null';
+        
+        try {
+            const response = await fetch('/api/add-expense', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    name: name,
+                    amount: amount,
+                    category: category,
+                    date: date,
+                    description: description
+                })
+            });
+            
+            if (response.ok) {
+                const data = await response.json();
+                if (data.success) {
+                    // Reset form and close modal
+                    expenseForm.reset();
+                    expenseModal.style.display = 'none';
+                    
+                    // Set default date to today
+                    document.getElementById('expense-date').valueAsDate = new Date();
+                    
+                    // Reload dashboard data and transactions
+                    await loadDashboardData();
+                    await loadTransactions();
+                } else {
+                    alert('Error adding expense: ' + data.message);
+                }
+            }
+        } catch (error) {
+            console.error('Error adding expense:', error);
+            alert('Error adding expense');
+        }
+    }
+
+    async function loadCardData(month, year) {
+        try {
+            // Fetch card data from the API
+            const response = await fetch(`/api/card-data?month=${month}&year=${year}`);
+            if (response.ok) {
+                const data = await response.json();
+                console.log('Card Data API Response:', data); // Debugging log
+
+                if (data.success && data.cardData) {
+                    // Update the card data
+                    const spentAmountEl = document.getElementById('spent-amount');
+                    const noTransactionsEl = document.getElementById('no-transactions');
+                    const topCatEl = document.getElementById('top-cat');
+                    const topCatAmtEl = document.getElementById('top-cat-amt');
+
+                    if (spentAmountEl) spentAmountEl.textContent = formatCurrency(data.cardData.total_spent);
+                    if (noTransactionsEl) noTransactionsEl.textContent = data.cardData.transaction_count || 0;
+                    if (topCatEl) topCatEl.textContent = data.cardData.most_spent_category || 'None';
+                    if (topCatAmtEl) topCatAmtEl.textContent = formatCurrency(data.cardData.most_spent_amount || 0);
+                } else {
+                    console.warn('No data available for the selected month.');
+                    resetCardData(); // Reset card data to default values
+                }
+            } else {
+                console.error('Failed to fetch card data:', response.status);
+                resetCardData(); // Reset card data to default values
+            }
+        } catch (error) {
+            console.error('Error loading card data:', error);
+            resetCardData(); // Reset card data to default values
+        }
+    }
+
+    function resetCardData() {
+        document.getElementById('spent-amount').textContent = '₹0.00';
+        document.getElementById('no-transactions').textContent = '0';
+        document.getElementById('top-cat').textContent = 'None';
+        document.getElementById('top-cat-amt').textContent = '₹0.00';
+    }
+
+    // Update card data when the month selector changes
+    document.getElementById('date-selector').addEventListener('click', () => {
+        const activeMonthBtn = document.querySelector('.month-btn.active');
+        if (activeMonthBtn) {
+            selectedMonth = parseInt(activeMonthBtn.dataset.month);
+            selectedYear = parseInt(document.getElementById('current-year').textContent);
+            console.log('Selected Month:', selectedMonth);
+            console.log('Selected Year:', selectedYear);
+            loadCardData(selectedMonth, selectedYear);
+        } else {
+            console.error('No active month button found.');
+        }
+    });
+
+    // Call the function on page load
+    document.addEventListener('DOMContentLoaded', () => {
+        console.log('Initial Month:', selectedMonth);
+        console.log('Initial Year:', selectedYear);
+        loadCardData(selectedMonth, selectedYear);
+    });
+
+    updateMonthDisplay();
+    loadCardData();
+    loadUserInfo();
+>>>>>>> recover-local
     loadTransactions();
 });

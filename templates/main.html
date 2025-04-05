@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <title>StudentSpend - Dashboard</title>
+</head>
+<body>
+    <div class="app-container">
+        <aside class="sidebar">
+            <div class="logo">
+                <h1>StudentSpend <span class="beta-tag">Beta</span></h1>
+            </div>
+            <nav class="main-nav">
+                <ul>
+                    <li class="active">
+                        <a href="/"><i class="fas fa-th-large"></i> Dashboard</a>
+                    </li>
+                    <li>
+                        <a href="#" id="settings-link"><i class="fas fa-cog"></i> Settings</a>
+                    </li>
+                </ul>
+            </nav>
+            <div class="categories" id="categories-list">
+                <h3>CATEGORIES</h3>
+                <ul>
+                    <li><span class="category-dot food"></span> Food & Dining</li>
+                    <li><span class="category-dot education"></span> Education</li>
+                    <li><span class="category-dot entertainment"></span> Entertainment</li>
+                    <li><span class="category-dot shopping"></span> Shopping</li>
+                    <li><span class="category-dot transport"></span> Transport</li>
+                    <li><span class="category-dot other"></span> Other</li>
+                </ul>
+            </div>
+        </aside>
+        <main class="main-content">
+            <header class="top-bar">
+                <div class="page-title">
+                    <h1>Dashboard</h1>
+                    <p>Track and manage your expenses efficiently</p>
+                </div>
+                
+                <div class="user-controls">
+                    <div class="date-selector" id="date-selector">
+                        <span id="current-month">March 2025</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="user-profile">
+                        <span class="user-name" id="username">User</span>
+                        <div class="avatar" id="user-avatar">U</div>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Stats Cards -->
+            <div class="stats-cards">
+                <div class="stats-card">
+                    <div class="card-content">
+                        <h3>Total Spent</h3>
+                        <div class="amount total" id="spent-amount">₹0.00</div>
+                        <div class="sub-text">This Month</div>
+                    </div>
+                    <div class="card-icon total-icon">
+                        <i class="fas fa-receipt"></i>
+                    </div>
+                </div>
+                
+                <div class="stats-card">
+                    <div class="card-content">
+                        <h3>Transactions</h3>
+                        <div class="amount count" id="no-transactions">0</div>
+                        <div class="sub-text">This Month</div>
+                    </div>
+                    <div class="card-icon count-icon">
+                        <i class="fas fa-exchange-alt"></i>
+                    </div>
+                </div>
+                
+                <div class="stats-card">
+                    <div class="card-content">
+                        <h3>Most Spent On</h3>
+                        <div class="amount top" id="top-cat">None</div>
+                        <div class="sub-text" id="top-cat-amt">₹0.00</div>
+                    </div>
+                    <div class="card-icon top-icon">
+                        <i class="fas fa-utensils"></i>
+                    </div>
+                </div>
+            </div>
+            <!-- Transactions Table -->
+            <div class="transactions-section">
+                <div class="transactions-header">
+                    <h3>Transactions</h3>
+                </div>
+                <div class="transactions-table">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Amount</th>
+                                <th>Category</th>
+                                <th>Date</th>
+                                <th>Description</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="transactions-list">
+                            <!-- Transactions will be loaded here -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+    <!-- Month Selector Modal -->
+    <div class="modal" id="month-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Select Month</h2>
+                <span class="close-modal">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="month-selector">
+                    <div class="year-selector">
+                        <button id="prev-year"><i class="fas fa-chevron-left"></i></button>
+                        <span id="current-year">2025</span>
+                        <button id="next-year"><i class="fas fa-chevron-right"></i></button>
+                    </div>
+                    <div class="months-grid">
+                        <button class="month-btn" data-month="1">Jan</button>
+                        <button class="month-btn" data-month="2">Feb</button>
+                        <button class="month-btn" data-month="3">Mar</button>
+                        <button class="month-btn" data-month="4">Apr</button>
+                        <button class="month-btn" data-month="5">May</button>
+                        <button class="month-btn" data-month="6">Jun</button>
+                        <button class="month-btn" data-month="7">Jul</button>
+                        <button class="month-btn" data-month="8">Aug</button>
+                        <button class="month-btn" data-month="9">Sep</button>
+                        <button class="month-btn" data-month="10">Oct</button>
+                        <button class="month-btn" data-month="11">Nov</button>
+                        <button class="month-btn" data-month="12">Dec</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Add Button -->
+    <button class="add-button" id="add-expense-btn">
+        <i class="fas fa-plus"></i>
+    </button>
+    
+    <!-- Add Expense Modal -->
+    <div class="modal" id="expense-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Add New Expense</h2>
+                <span class="close-modal">&times;</span>
+            </div>
+            <div class="modal-body">
+                <form id="expense-form">
+                    <div class="form-group">
+                        <label for="expense-name">Name</label>
+                        <input type="text" id="expense-name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="expense-amount">Amount</label>
+                        <input type="number" id="expense-amount" step="0.01" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="expense-category">Category</label>
+                        <select id="expense-category" required>
+                            <option value="Food & Dining">Food & Dining</option>
+                            <option value="Education">Education</option>
+                            <option value="Entertainment">Entertainment</option>
+                            <option value="Shopping">Shopping</option>
+                            <option value="Transport">Transport</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="expense-date">Date</label>
+                        <input type="date" id="expense-date" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="expense-description">Description</label>
+                        <input type="text" id="expense-description" placeholder="Optional">
+                    </div>
+                    <button type="submit" class="btn">Add Expense</button>
+                </form>
+            </div>
+        </div>
+    </div>
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>

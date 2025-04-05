@@ -6,26 +6,15 @@ document.addEventListener('DOMContentLoaded', function() {
     const addExpenseBtn = document.getElementById('add-expense-btn');
     const expenseModal = document.getElementById('expense-modal');
     const closeModalBtns = document.querySelectorAll('.close-modal');
-<<<<<<< HEAD
-    const budgetModal = document.getElementById('budget-modal');
-    const currentMonthEl = document.getElementById('current-month');
-    const monthlyBudgetEl = document.getElementById('monthly-budget');
-    const spentAmountEl = document.getElementById('spent-amount');
-    const remainingAmountEl = document.getElementById('remaining-amount');
-=======
     const currentMonthEl = document.getElementById('current-month');
     const spentAmountEl = document.getElementById('spent-amount');
     const expenseForm = document.getElementById('expense-form');
->>>>>>> recover-local
 
     addExpenseBtn.addEventListener('click', openExpenseModal);
     addExpenseBtn.addEventListener('click', openExpenseModal);
 
-<<<<<<< HEAD
-=======
     expenseForm.addEventListener('submit', handleAddExpense);
 
->>>>>>> recover-local
     // Month Selector Elements
     const currentYearEl = document.getElementById('current-year');
     const prevYearBtn = document.getElementById('prev-year');
@@ -76,17 +65,12 @@ document.addEventListener('DOMContentLoaded', function() {
                 <td>${formattedDate}</td>
                 <td>${transaction.description || 'N/A'}</td>
                 <td>
-<<<<<<< HEAD
-                    <button class="action-btn edit-btn" data-id="${transaction.id}"><i class="fas fa-edit"></i></button>
-                    <button class="action-btn delete-btn" data-id="${transaction.id}"><i class="fas fa-trash"></i></button>
-=======
                     <button class="action-btn edit-btn" data-date="${formattedDate}" data-name="${transaction.ename}">
                         <i class="fas fa-edit"></i>
                     </button>
                     <button class="action-btn delete-btn" data-date="${formattedDate}" data-name="${transaction.ename}">
                         <i class="fas fa-trash"></i>
                     </button>
->>>>>>> recover-local
                 </td>
             `;
             
@@ -96,38 +80,24 @@ document.addEventListener('DOMContentLoaded', function() {
         // Add event listeners for edit and delete buttons
         document.querySelectorAll('.edit-btn').forEach(btn => {
             btn.addEventListener('click', function() {
-<<<<<<< HEAD
-                const id = this.dataset.id;
-                // Implement edit functionality
-                alert('Edit functionality to be implemented');
-=======
                 const date = this.dataset.date;
                 const name = this.dataset.name;
                 // Implement edit functionality
                 alert(`Edit functionality for ${name} on ${date} to be implemented`);
->>>>>>> recover-local
             });
         });
         
         document.querySelectorAll('.delete-btn').forEach(btn => {
             btn.addEventListener('click', function() {
-<<<<<<< HEAD
-                const id = this.dataset.id;
-                if (confirm('Are you sure you want to delete this expense?')) {
-                    deleteExpense(id);
-=======
                 const date = this.dataset.date;
                 const name = this.dataset.name;
                 if (confirm(`Are you sure you want to delete the expense "${name}" on ${date}?`)) {
                     deleteExpense(date, name);
->>>>>>> recover-local
                 }
             });
         });
     }
 
-<<<<<<< HEAD
-=======
     async function deleteExpense(date, name) {
         try {
             const response = await fetch('/api/delete-expense', {
@@ -158,7 +128,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
     
->>>>>>> recover-local
     // Open Month Selector Modal
     dateSelector.addEventListener('click', () => {
         // Ensure currentYearEl displays the correct year
@@ -210,13 +179,9 @@ document.addEventListener('DOMContentLoaded', function() {
         selectedMonth = month;
         selectedYear = year;
         updateMonthDisplay();
-<<<<<<< HEAD
-        loadDashboardData();
-=======
         loadDashboardData(); // Update the spent amount
         loadTransactions();  // Update the transactions
         loadCardData(month, year); // Update the card data
->>>>>>> recover-local
     }
 
     // Update Month Display
@@ -242,10 +207,6 @@ document.addEventListener('DOMContentLoaded', function() {
         btn.addEventListener('click', () => {
             expenseModal.style.display = 'none';
             monthModal.style.display = 'none';
-<<<<<<< HEAD
-            budgetModal.style.display = 'none';
-=======
->>>>>>> recover-local
         });
     });
 
@@ -257,13 +218,6 @@ document.addEventListener('DOMContentLoaded', function() {
         if (e.target === monthModal) {
             monthModal.style.display = 'none';
         }
-<<<<<<< HEAD
-        if (e.target === budgetModal) {
-            budgetModal.style.display = 'none';
-        }
-    });
-
-=======
     });
 
     async function loadUserInfo() {
@@ -294,35 +248,12 @@ document.addEventListener('DOMContentLoaded', function() {
     document.addEventListener('DOMContentLoaded', loadUserInfo);
 
 
->>>>>>> recover-local
     async function loadDashboardData() {
         try {
             let monthStr = selectedMonth.toString().padStart(2, '0');
             let tableName = `m${monthStr}_${selectedYear}`;
             console.log('Fetching data for table:', tableName);
     
-<<<<<<< HEAD
-            const response = await fetch(`/api/monthly-data?month=${tableName}`);
-            if (response.ok) {
-                const data = await response.json();
-                if (data.success) {
-                    const totalExpense = data.totalExpense || 0;
-                    const budget = data.budget || 1200;
-                    const remaining = budget - totalExpense;
-    
-                    monthlyBudgetEl.textContent = formatCurrency(budget);
-                    spentAmountEl.textContent = formatCurrency(totalExpense);
-                    remainingAmountEl.textContent = formatCurrency(remaining);
-                } else {
-                    console.warn('No data available for this month.');
-                    resetDashboard();
-                }
-            } else {
-                console.error('Failed to fetch data:', response.status);
-                resetDashboard();
-            }
-=======
->>>>>>> recover-local
         } catch (error) {
             console.error('Error loading dashboard data:', error);
             resetDashboard();
@@ -330,21 +261,12 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function resetDashboard() {
-<<<<<<< HEAD
-        monthlyBudgetEl.textContent = '₹0.00';
         spentAmountEl.textContent = '₹0.00';
-        remainingAmountEl.textContent = '₹0.00';
-=======
-        spentAmountEl.textContent = '₹0.00';
->>>>>>> recover-local
     }
 
     function formatCurrency(amount) {
         return '₹' + parseFloat(amount).toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,');
     }
-<<<<<<< HEAD
-    loadDashboardData();
-=======
 
     async function handleAddExpense(e) {
         e.preventDefault();
@@ -457,6 +379,5 @@ document.addEventListener('DOMContentLoaded', function() {
     updateMonthDisplay();
     loadCardData();
     loadUserInfo();
->>>>>>> recover-local
     loadTransactions();
 });

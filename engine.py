@@ -1,6 +1,7 @@
 import mysql.connector.pooling
 from datetime import date, datetime, timedelta
 from random import randint
+from config import DB_CONFIG
 
 def writeErrLog(msg):
     """Log errors to the error log file."""
@@ -8,12 +9,8 @@ def writeErrLog(msg):
         file_object.write(msg + "\n\n")
 
 # Create a connection pool for database connections
-db_config = {
-    'user': 'sql12771396',
-    'password': 'IKVG5irB59',
-    'host': 'sql12.freesqldatabase.com',
-    'database': 'sql12771396'
-}
+db_config = DB_CONFIG
+
 connection_pool = mysql.connector.pooling.MySQLConnectionPool(pool_name="mypool",
                                                               pool_size=5,
                                                               **db_config)

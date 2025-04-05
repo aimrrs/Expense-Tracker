@@ -2,16 +2,17 @@ from flask import Flask, request, jsonify, session, redirect, render_template
 from flask_mail import Mail, Message
 from engine import *
 from datetime import datetime
+import config
 
 app = Flask(__name__)
-app.secret_key = "jkgigegegskeejghaelgjqgrueelkjglkjeougqeiuhebjg"
+app.secret_key = config.SERCET_KEY
 
 # Flask-Mail configuration
 app.config['MAIL_SERVER'] = 'smtp.gmail.com'  # Replace with your SMTP server
 app.config['MAIL_PORT'] = 587
 app.config['MAIL_USE_TLS'] = True
-app.config['MAIL_USERNAME'] = 'noreplyforexpensetracker@gmail.com'  # Replace with your email
-app.config['MAIL_PASSWORD'] = 'ieag xano eyay gefi'  # Replace with your email password
+app.config['MAIL_USERNAME'] = config.MAIL_USERNAME
+app.config['MAIL_PASSWORD'] = config.MAIL_PASSWORD
 
 mail = Mail(app)
 
